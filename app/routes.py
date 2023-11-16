@@ -1,3 +1,6 @@
+""" 
+Application Routes
+"""
 from app import api
 from flask import jsonify
 from flask_restx import Resource

@@ -17,6 +17,9 @@ class AuthService:
     def login_user(request):
         """
         Function for logging in user and creating access token
+
+        :param request: request from api request
+        :return: A response with status code, message, and data
         """
         login_user_schema = LoginUserSchema()
         errors = login_user_schema.validate(request)
@@ -31,29 +34,28 @@ class AuthService:
         if auth_user is None:
             return {'message' : 'User not found', 'code' : 400}
         
-        if check_password_hash(auth_user.password, param['password']):            
-            expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
-            expires_at_str = expires_at.isoformat()
-            encode =  {
+        if check_password_hash(auth_user.password, param['password']):
+            # generate token
+            access_token = jwt.encode({
                         'id': auth_user.id,
                         'email': auth_user.email,
                         'username': auth_user.username,
-                        'expires_at': expires_at_str,
-                    }
-
-            # generate token
-            access_token = jwt.encode(encode, Config.SECRET_KEY)
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+                    }, Config.SECRET_KEY)
             
             # add access token to response
-            encode['access_token'] = access_token
+            param['access_token'] = access_token
 
-            return {'code' : 200, 'message' : 'Login Successfully', 'data' : encode}
+            return {'code' : 200, 'message' : 'Login Successfully', 'data' : param}
         else:            
             return {'code' : 400, 'message' : 'Wrong Password'}
         
     def signup_user(request):        
         """
         Function for creating user through signup
+
+        :param request: request from api request
+        :return: A response with status code, message, and data
         """
         signup_user_schema = SignupUserSchema()
         errors = signup_user_schema.validate(request)
@@ -101,6 +103,9 @@ class AuthService:
     def validate_access_token(request):        
         """
         Validate if access token exist, invalid or valid
+
+        :param request: request from api request
+        :return: A response with status code, message, and data
         """
         auth_header = request.headers.get('Authorization')
 
@@ -121,8 +126,9 @@ class AuthService:
                 access_token,
                 Config.SECRET_KEY,
                 algorithms="HS256",
-                options = {"require_exp": True}
+                options={"require": ["exp"]}
             )
+
             return {
                 'status'    : True,
                 'message'   : 'Valid access token',

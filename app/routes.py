@@ -43,7 +43,7 @@ class TimeEntry(Resource):
         if get_auth_token['status'] == True:
             status, time_entry = TimeEntryService.validateTimeEntry(get_auth_token['user'])
             if status == True:
-                response =  TimeEntryService.doTimeEntryIn(request, get_auth_token['user'])
+                response =  TimeEntryService.doTimeEntryIn(get_auth_token['user'])
                 return response, response['code']
             else:                
                 return {'code' : 400, 'message': 'User already timed in for today'}, 400
@@ -55,7 +55,8 @@ class TimeEntry(Resource):
         """
         Do User time out
         """        
-        get_auth_token = AuthService.validate_access_token(request)                    
+        get_auth_token = AuthService.validate_access_token(request)            
+        
         if get_auth_token['status'] == True:
             status, time_entry = TimeEntryService.validateTimeEntry(get_auth_token['user'])
         

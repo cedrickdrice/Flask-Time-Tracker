@@ -9,7 +9,7 @@ class TimeEntryService:
     """
 
     @staticmethod
-    def doTimeEntryIn(auth_user):
+    def doTimeEntryIn(auth_user, request):
         """
         Create time entry for user
 
@@ -17,7 +17,13 @@ class TimeEntryService:
         :return: A response with status code and message, and data
         """
         
-        time_in_entry = TimeEntry(user_id=auth_user['id'], start_time=datetime.utcnow())
+        time_in_entry = TimeEntry(
+            user_id=auth_user['id'], 
+            project=request['project'], 
+            description=request['description'], 
+            start_time=datetime.utcnow()
+        )
+        
         db.session.add(time_in_entry)
 
         try:

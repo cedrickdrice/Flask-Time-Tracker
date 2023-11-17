@@ -10,6 +10,7 @@ from app.models.project import Project
 
 from app.services.auth import AuthService
 from app.services.time_entry import TimeEntryService
+from app.schema.time_entry_schema import TimeEntrySchema
 
 @api.route('/api/signup')
 class Signup(Resource):
@@ -41,9 +42,16 @@ class TimeEntry(Resource):
         get_auth_token = AuthService.validate_access_token(request)            
         
         if get_auth_token['status'] == True:
+            # Validate time entry request parameters
+            time_entry_schema = TimeEntrySchema()
+            errors = time_entry_schema.validate(request.get_json())                
+            if errors:
+                return {'message' : errors, 'code' : 400}
+
+            # Validate if user already time in
             status, time_entry = TimeEntryService.validateTimeEntry(get_auth_token['user'])
             if status == True:
-                response =  TimeEntryService.doTimeEntryIn(get_auth_token['user'])
+                response =  TimeEntryService.doTimeEntryIn(get_auth_token['user'], request.get_json())
                 return response, response['code']
             else:                
                 return {'code' : 400, 'message': 'User already timed in for today'}, 400

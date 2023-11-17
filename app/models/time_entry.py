@@ -12,3 +12,11 @@ class TimeEntry(db.Model):
     project = db.Column('project', db.String(120))
     description = db.Column('description', db.Text)
     created_at = db.Column('created_at', db.DateTime, default=datetime.utcnow)
+
+    def ordinal(week_number):
+        """ Return the ordinal representation of a number """
+        if 10 <= week_number % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(week_number % 10, 'th')
+        return str(week_number) + suffix

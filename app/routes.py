@@ -11,6 +11,8 @@ from app.services.auth import AuthService
 from app.services.time_entry import TimeEntryService
 from app.schema.time_entry_schema import TimeEntrySchema
 
+from flask import jsonify # added
+
 @api.route('/api/signup')
 class Signup(Resource):
     """
@@ -67,3 +69,15 @@ class TimeEntry(Resource):
             return response, response['code']
         else:                
             return {'code' : 400, 'message': 'User already timedout for today'}, 400
+        
+@api.route('/api/work')
+class WorkSummary(Resource):
+    @required_auth_token
+    def get(self):
+        """
+        Get the user's week summary
+        """
+        get_auth_token = AuthService.get_auth_user(request)
+        # Get the total hours of user in all projects for the week
+        response = TimeEntryService.getWeekWorkSummary(get_auth_token)
+        return response, response['code']

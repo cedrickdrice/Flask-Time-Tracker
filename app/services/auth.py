@@ -14,9 +14,13 @@ class AuthService:
     """
     Class that handles the signup and login functions
     """
+    @staticmethod
     def login_user(request):
         """
         Function for logging in user and creating access token
+        
+        Validates the user credentials against the database. If authentication
+        is successful, it generates and returns a JWT access token.
 
         :param request: request from api request
         :return: A response with status code, message, and data
@@ -50,9 +54,14 @@ class AuthService:
         else:            
             return {'code' : 400, 'message' : 'Wrong Password'}
         
+    @staticmethod        
     def signup_user(request):        
         """
         Function for creating user through signup
+
+        Validates the signup request against the schema and ensures that the
+        username and email are not already in use. If validation is successful,
+        it creates a new user in the database.
 
         :param request: request from api request
         :return: A response with status code, message, and data
@@ -99,10 +108,13 @@ class AuthService:
                 'code'      : 500,
                 'message'   : str(e)
             }
-        
+    @staticmethod        
     def get_auth_user(request):        
         """
         Get auth user from access token
+
+        Decodes the JWT access token from the request headers and retrieves the user's
+        information if the token is valid.
 
         :param request: request from api request
         :return: A response with status code, message, and data

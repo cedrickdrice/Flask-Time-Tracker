@@ -1,8 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app import db
 from app.models.time_entry import TimeEntry
+from app.models.project import Project
 
+from sqlalchemy import func  # added
 class TimeEntryService:
     """
     Handles the time-in and time-out entries
@@ -70,3 +72,47 @@ class TimeEntryService:
         else: 
             # User already has no time entry
             return True, []
+        
+    @staticmethod
+    def getWeekWorkSummary(auth_user):
+        """
+        Create summary report of user working hours on project
+        
+        :param auth_user: current authenticated user
+        :return: return dict that contain summary working hours
+        """
+        today = datetime.utcnow()
+        start_of_week = today - timedelta(days=(today.weekday() + 1) % 7)
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        end_of_week = start_of_week + timedelta(days=6)
+        end_of_week = end_of_week.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        work_summary = db.session.query(
+            Project.name,
+            func.round(
+                func.sum(
+                    func.strftime('%s', TimeEntry.end_time) - 
+                    func.strftime('%s', TimeEntry.start_time)
+                ) / 3600, 2
+            ).label('total_hours')
+        ).join(
+            Project, Project.id == TimeEntry.project
+        ).filter(
+            TimeEntry.user_id == auth_user['user']['id'],
+            TimeEntry.start_time >= start_of_week,
+            TimeEntry.end_time <= end_of_week
+        ).group_by(
+            Project.name
+        ).all()
+
+        result = [{
+            'project': entry.name,
+            'total_hours': entry.total_hours
+        } for entry in work_summary]
+
+        week_number = start_of_week.isocalendar()[1]
+        ordinal_week = TimeEntry.ordinal(week_number)
+        message = f'User Week Summary for the {ordinal_week} week: {start_of_week.strftime("%Y-%m-%d")}'
+
+        return {'code': 200, 'message': message, 'data' : result}

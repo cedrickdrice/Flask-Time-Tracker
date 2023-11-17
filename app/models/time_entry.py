@@ -7,7 +7,8 @@ class TimeEntry(db.Model):
 
     id = db.Column('id', db.Integer, primary_key=True)
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'), nullable=False)
+    start_time = db.Column('start_time', db.DateTime, nullable=False, default=datetime.utcnow)
+    end_time = db.Column('end_time', db.DateTime, nullable=True)
     project = db.Column('project', db.String(120))
-    hours = db.Column('hours', db.Float, nullable=False)
     description = db.Column('description', db.Text)
     created_at = db.Column('created_at', db.DateTime, default=datetime.utcnow)

@@ -1,7 +1,6 @@
 import jwt
 import datetime
 
-from os import environ
 from config import Config
 
 from app import db
@@ -11,7 +10,7 @@ from app.schema.login_user_schema import LoginUserSchema
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-class Auth:
+class AuthService:
     """
     Class that handles the signup and login functions
     """
@@ -52,7 +51,6 @@ class Auth:
         else:            
             return {'code' : 400, 'message' : 'Wrong Password'}
         
-
     def signup_user(request):        
         """
         Function for creating user through signup
@@ -99,3 +97,48 @@ class Auth:
                 'code'      : 500,
                 'message'   : str(e)
             }
+        
+    def validate_access_token(request):        
+        """
+        Validate if access token exist, invalid or valid
+        """
+        auth_header = request.headers.get('Authorization')
+
+        # validate if bearer token exist
+        auth_content = auth_header.split() if auth_header else []
+        valid_token = True if (len(auth_content) == 2 and auth_content[0] == 'Bearer') else False
+
+        if valid_token == False:
+            return {
+                'status'    : True,
+                'message'   : 'Invalid request. Missing access token'
+            }
+
+        access_token = auth_content[1]            
+        try:
+            # Decode to get the auth user
+            decode_auth = jwt.decode(
+                access_token,
+                Config.SECRET_KEY,
+                algorithms="HS256",
+                options = {"require_exp": True}
+            )
+            return {
+                'status'    : True,
+                'message'   : 'Valid access token',
+                'user'      :  decode_auth
+            }
+        except jwt.ExpiredSignatureError:
+            return {
+                'status'    : False,
+                'message'   : 'Expired access token'
+            }
+        except jwt.InvalidTokenError:
+            return {
+                'status'    : False,
+                'message'   : 'Invalid access token'
+            }
+            
+        
+
+

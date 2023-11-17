@@ -1,3 +1,9 @@
+import jwt
+import datetime
+
+from os import environ
+from config import Config
+
 from app import db
 from app.models.user import User
 from app.schema.signup_user_schema import SignupUserSchema
@@ -10,6 +16,9 @@ class Auth:
     Class that handles the signup and login functions
     """
     def login_user(request):
+        """
+        Function for logging in user and creating access token
+        """
         login_user_schema = LoginUserSchema()
         errors = login_user_schema.validate(request)
         
@@ -18,18 +27,36 @@ class Auth:
 
         param = login_user_schema.load(request)
         
-        get_user = User.query.filter_by(username = param['username']).first()
+        auth_user = User.query.filter_by(username = param['username']).first()
 
-        if get_user is None:
+        if auth_user is None:
             return {'message' : 'User not found', 'code' : 400}
         
-        if check_password_hash(get_user.password, param['password']):
-            return {'message' : 'Login Successfully', 'code' : 400}
+        if check_password_hash(auth_user.password, param['password']):            
+            expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+            expires_at_str = expires_at.isoformat()
+            encode =  {
+                        'id': auth_user.id,
+                        'email': auth_user.email,
+                        'username': auth_user.username,
+                        'expires_at': expires_at_str,
+                    }
+
+            # generate token
+            access_token = jwt.encode(encode, Config.SECRET_KEY)
+            
+            # add access token to response
+            encode['access_token'] = access_token
+
+            return {'code' : 200, 'message' : 'Login Successfully', 'data' : encode}
         else:            
-            return {'message' : 'Wrong Password', 'code' : 400}
+            return {'code' : 400, 'message' : 'Wrong Password'}
         
 
     def signup_user(request):        
+        """
+        Function for creating user through signup
+        """
         signup_user_schema = SignupUserSchema()
         errors = signup_user_schema.validate(request)
         

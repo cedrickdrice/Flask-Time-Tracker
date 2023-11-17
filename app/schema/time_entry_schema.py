@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validate, validates, validates_schema, ValidationError
+from marshmallow import Schema, fields, validate, validates, ValidationError
 from app.models.project import Project
 
 class TimeEntrySchema(Schema):

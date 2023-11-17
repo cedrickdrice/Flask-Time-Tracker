@@ -40,7 +40,7 @@ class AuthService:
                         'id': auth_user.id,
                         'email': auth_user.email,
                         'username': auth_user.username,
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1) # 24hrs token life
                     }, Config.SECRET_KEY)
             
             # add access token to response
@@ -100,9 +100,9 @@ class AuthService:
                 'message'   : str(e)
             }
         
-    def validate_access_token(request):        
+    def get_auth_user(request):        
         """
-        Validate if access token exist, invalid or valid
+        Get auth user from access token
 
         :param request: request from api request
         :return: A response with status code, message, and data
@@ -111,14 +111,6 @@ class AuthService:
 
         # validate if bearer token exist
         auth_content = auth_header.split() if auth_header else []
-        valid_token = True if (len(auth_content) == 2 and auth_content[0] == 'Bearer') else False
-
-        if valid_token == False:
-            return {
-                'status'    : True,
-                'message'   : 'Invalid request. Missing access token'
-            }
-
         access_token = auth_content[1]            
         try:
             # Decode to get the auth user
@@ -134,15 +126,10 @@ class AuthService:
                 'message'   : 'Valid access token',
                 'user'      :  decode_auth
             }
-        except jwt.ExpiredSignatureError:
+        except:
             return {
                 'status'    : False,
-                'message'   : 'Expired access token'
-            }
-        except jwt.InvalidTokenError:
-            return {
-                'status'    : False,
-                'message'   : 'Invalid access token'
+                'message'   : 'Failed to decode token'
             }
             
         

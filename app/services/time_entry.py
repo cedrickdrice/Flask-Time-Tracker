@@ -23,8 +23,16 @@ class TimeEntryService:
             return {'code' : 400, 'message' : str(e)}
 
 
-    def doTimeEntryOut():
-        pass
+    def doTimeEntryOut(time_entry):        
+        """
+        Update user's time entry end_time for time out
+        """
+        time_entry.end_time = datetime.utcnow()
+        try:
+            db.session.commit()
+            return {'code' : 200, 'message' : 'Timeout Registered Successfully'}
+        except Exception as e:
+            return {'code' : 400, 'message' : str(e)}
 
     def validateTimeEntry(auth_user):
         """
@@ -42,9 +50,9 @@ class TimeEntryService:
             """
             User already has time entry
             """
-            return False
+            return False, ongoing_entry
         else: 
             """
             User already has no time entry
             """
-            return True
+            return True, []

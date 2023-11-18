@@ -70,6 +70,14 @@ Authorization: Bearer YOUR_API_KEY
   | `username` | `string` | **Required**. User's desired username. |
   | `email` | `string` | **Required**. User's email address. |
   | `password` | `string` | **Required**. User's chosen password. |
+  
+  ```json
+  {
+    "username" : "cediedrice12",
+    "email" : "cediedrice@gmail12.com",
+    "password" : "123456"
+  }
+  ```
 
 * **Response**: Returns a success message upon successful signup or an error message on failure.
 
@@ -84,6 +92,12 @@ Authorization: Bearer YOUR_API_KEY
     | :--- | :--- | :--- |
   | `username` | `string` | **Required**. User's username. |
   | `password` | `string` | **Required**. User's password. |
+  ```json
+  {
+    "username" : "cediedrice12",
+    "password" : "123456"
+  }
+  ```
 * **Response**: On successful authentication, returns an access token for the user. On failure, returns an error message.
 
 ## Time Entry
@@ -98,20 +112,27 @@ Authorization: Bearer YOUR_API_KEY
   | `project` | `int`    | **Required**.  ID of the project the time entry is for. |
   | `description` | `string` | **Required**. Description of the work session.          |
 
+  ```json
+  {
+    "project" : "2",
+    "description" : "123456"
+  }
+  ```
+
 * **Response**: Returns a success message upon successful time entry or an error message if the user has already timed in.
 
     ```json
-	    {
-		    "code": 200,
-		    "message": "Time Registered Successfully",
-		    "data": {
-		        "id": 2,
-		        "email": "cediedrice@gmail.com",
-		        "username": "cediedrice",
-		        "exp": 1700334394
-		    }
-	}
-	```
+        {
+            "code": 200,
+            "message": "Time Registered Successfully",
+            "data": {
+                "id": 2,
+                "email": "cediedrice@gmail.com",
+                "username": "cediedrice",
+                "exp": 1700334394
+            }
+    }
+    ```
 
 ### `PUT /api/time`
 
@@ -147,3 +168,17 @@ Authorization: Bearer YOUR_API_KEY
 		    ]
 		}
     ```    
+
+## Testing the API
+The **api_test.sh** script is provided to test the API endpoints for user signup and login. Follow these steps to run the tests:
+
+### Prerequisites for Testing
+On Windows, use Git Bash or a similar environment to run the script.
+
+### Running the Tests
+1. Navigate to the directory containing your Flask Time Tracker project.
+2. Make sure your Flask application is running.
+3. To execute the tests, run the following command in your terminal:
+``` bash
+./api_test.sh
+```

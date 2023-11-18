@@ -11,8 +11,10 @@ with app.app_context():
         """
         projects = [
             Project(name="Project 1", description="Project 1 Description"),
-            Project(name="Project 2", description="Project 1 Description"),
-            Project(name="Project 3", description="Project 3 Description")
+            Project(name="Project 2", description="Project 2 Description"),
+            Project(name="Project 3", description="Project 3 Description"),
+            Project(name="Project 4", description="Project 4 Description"),
+            Project(name="Project 5", description="Project 5 Description"),
         ]
 
         for project in projects:

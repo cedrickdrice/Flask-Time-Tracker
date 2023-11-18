@@ -100,7 +100,7 @@ class AuthService:
         try:
             db.session.commit()
             return {
-                'code'      : 200, 
+                'code'      : 201, 
                 'message'   : 'User created successfully'
             }
         except Exception as e:
